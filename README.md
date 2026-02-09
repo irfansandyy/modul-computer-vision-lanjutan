@@ -1181,7 +1181,150 @@ Link Quickstart Roboflow: [blog.roboflow.com/getting-started-with-roboflow)](htt
 
 ## [Yolo](#yolo)
 
-Yolo (You Only Look Once) adalah salah satu algoritma deteksi objek real-time yang paling populer dan efisien. YOLO mengubah masalah deteksi objek menjadi masalah regresi tunggal, memprediksi bounding box dan probabilitas kelas langsung dari gambar input dalam satu langkah.
+Ultralytics YOLO adalah framework *state-of-the-art* (SOTA) yang dirancang untuk kecepatan dan akurasi tinggi dalam tugas *computer vision*. Framework ini menyediakan antarmuka Python yang intuitif dan Command-Line Interface (CLI) yang kuat.
+
+### Instalasi YOLO
+
+Metode tercepat adalah menggunakan `pip`. Pastikan sistem sudah terinstall Python dan PyTorch.
+
+#### Instalasi Standar (Rekomendasi)
+
+```bash
+pip install -U ultralytics
+
+```
+
+#### Instalasi Headless (Untuk Server/Docker)
+
+Jika menjalankan YOLO di server tanpa monitor (misalnya cloud VM), gunakan versi *headless* untuk menghindari masalah pada library GUI:
+
+```bash
+pip install ultralytics-opencv-headless
+
+```
+
+### Alur Kerja Dasar dengan Python
+
+Antarmuka Python YOLO memungkinkan integrasi yang mulus ke dalam proyek aplikasi. Berikut adalah alur kerja utamanya:
+
+```python
+from ultralytics import YOLO
+
+# 1. Load Model
+model = YOLO("yolo11n.pt")  # Memuat model pretrained resmi
+
+# 2. Training (Opsional)
+# Melatih model pada dataset kustom
+results = model.train(data="coco8.yaml", epochs=3, imgsz=640)
+
+# 3. Validasi
+# Mengevaluasi performa model pada set validasi
+metrics = model.val()
+
+# 4. Prediksi / Inferensi
+# Menjalankan deteksi pada gambar, video, atau URL
+results = model("https://ultralytics.com/images/bus.jpg")
+
+# 5. Export
+# Mengonversi model ke format lain (ONNX, TensorRT, OpenVINO)
+model.export(format="onnx")
+
+```
+
+### Mode Operasi YOLO
+
+YOLO memiliki beberapa mode utama yang mencakup seluruh siklus pengembangan model:
+
+#### Train Mode
+
+Digunakan untuk melatih model pada dataset kustom.
+
+```python
+model.train(data="path/to/dataset.yaml", epochs=100, imgsz=640, device=0)
+
+```
+
+#### Predict Mode
+
+Digunakan untuk melakukan inferensi pada berbagai sumber data. YOLO mendukung banyak format input:
+
+```python
+# Dari webcam
+results = model.predict(source="0", show=True)
+
+# Dari folder berisi banyak gambar
+results = model.predict(source="folder_path/", save=True)
+
+# Dari ndarray (OpenCV)
+import cv2
+img = cv2.imread("image.jpg")
+results = model.predict(source=img)
+
+```
+
+#### Track Mode
+
+Digunakan untuk pelacakan objek secara *real-time* dalam aliran video.
+
+```python
+# Menggunakan tracker default (BoT-SORT) atau ByteTrack
+results = model.track(source="video.mp4", show=True, tracker="bytetrack.yaml")
+
+```
+
+#### Export Mode
+
+Penting untuk deployment di hardware khusus. Mode ini mengubah model `.pt` menjadi format yang lebih optimal.
+
+```python
+model.export(format="engine")    # Export ke TensorRT
+model.export(format="openvino")  # Export ke OpenVINO
+
+```
+
+### Konfigurasi Global (Settings)
+
+Ultralytics memiliki `SettingsManager` untuk mengatur direktori penyimpanan dataset dan hasil eksperimen secara permanen.
+
+```python
+from ultralytics import settings
+
+# Melihat semua konfigurasi saat ini
+print(settings)
+
+# Mengubah direktori penyimpanan dataset
+settings.update({"datasets_dir": "/path/to/custom/datasets"})
+
+# Reset ke pengaturan awal
+settings.reset()
+
+```
+
+### Ringkasan Fitur Lanjutan
+
+| Fitur | Deskripsi |
+| --- | --- |
+| **Multi-Task** | Mendukung Detection, Segmentation, OBB (Oriented Bounding Boxes), Pose, dan Classify. |
+| **Benchmark** | Tool otomatis untuk membandingkan kecepatan model di berbagai format export (`onnx`, `openvino`, `tensorrt`). |
+| **Pythonic API** | Semua hasil inferensi dikembalikan dalam bentuk objek yang mudah diakses (misal: `result.boxes`, `result.masks`). |
+| **Trainers** | Arsitektur modular yang memungkinkan modifikasi komponen internal model bagi peneliti. |
+
+### Contoh Visualisasi Hasil (Python)
+
+```python
+results = model("bus.jpg")
+
+for r in results:
+    # Menampilkan gambar dengan bounding box terplot
+    r.show()
+    
+    # Menyimpan hasil ke file
+    r.save(filename="result.jpg")
+    
+    # Mengambil koordinat box (format xyxy)
+    print(r.boxes.xyxy)
+
+```
 
 ## [Alat Inference](#alat-inference)
 
@@ -1191,7 +1334,7 @@ Inference adalah proses menjalankan model machine learning yang sudah dilatih un
 
 ONNX Runtime adalah inference engine general-purpose untuk menjalankan model format ONNX di berbagai backend (CPU, CUDA, TensorRT, OpenVINO).
 
-#### Instalasi
+#### Instalasi ONNX Runtime
 
 Terdapat dua paket Python untuk ONNX Runtime. Hanya satu dari paket ini yang boleh diinstal pada satu environment. Paket GPU mencakup sebagian besar fungsi CPU.
 
@@ -1493,209 +1636,209 @@ Specify the path to the shared library containing the custom op kernels required
 
 Whether to use deterministic compute. Default is false.
 
+### NVIDIA TensorRT
 
-====================================================
-1. NVIDIA TENSORRT
-====================================================
+NVIDIA TensorRT adalah SDK untuk optimasi model deep learning guna menghasilkan inferensi berperforma tinggi. TensorRT mencakup optimizer inferensi dan runtime untuk eksekusi, yang memungkinkan model berjalan dengan throughput lebih tinggi dan latensi lebih rendah.
 
-2.1 Fungsi Utama
-TensorRT adalah inference engine performa tinggi khusus GPU NVIDIA
-dengan latency sangat rendah.
+![tensorrt](img/tensorrt.png)
 
-----------------------------------------------------
-2.2 Instalasi
-----------------------------------------------------
+#### Instalasi TensorRT
 
-- Install CUDA Toolkit
-- Install cuDNN
-- Install TensorRT dari NVIDIA
+Terdapat beberapa metode utama untuk menginstal TensorRT tergantung pada kebutuhan lingkungan pengembanganmu.
 
-Jetson:
-sudo apt install nvidia-tensorrt
+##### Menggunakan Pip (Python Wheel)
 
-Desktop:
-Download dari NVIDIA Developer Portal
+```bash
+pip install tensorrt
+```
 
-----------------------------------------------------
-2.3 Konversi ONNX ke TensorRT Engine
-----------------------------------------------------
+##### Menggunakan File Debian (Ubuntu/Linux)
 
-trtexec \
-  --onnx=model.onnx \
-  --saveEngine=model.engine \
-  --fp16 \
-  --workspace=4096
+```bash
+# Contoh untuk Debian-based
+sudo dpkg -i nv-tensorrt-local-repo-ubuntu2x04-cudaX.X-trtX.X.X.X_1.0-1_amd64.deb
+sudo apt-get update
+sudo apt-get install tensorrt
+```
 
-Parameter:
-- --fp16 : inference FP16
-- --int8 : inference INT8
-- --workspace : memory workspace (MB)
+##### Menggunakan Container (NVIDIA NGC)
 
-----------------------------------------------------
-2.4 Inference TensorRT (Python)
-----------------------------------------------------
+```bash
+docker run --gpus all -it --rm nvcr.io/nvidia/tensorrt:24.01-py3
+```
 
+#### Alur Kerja Dasar (Workflow)
+
+Untuk men-deploy model, kamu perlu mengikuti lima langkah dasar berikut:
+
+1. Export Model: Ubah model dari framework asli (PyTorch/TF) ke format perantara (seperti ONNX).
+
+2. Select Precision: Pilih presisi numerik (FP32, FP16, INT8).
+
+3. Convert Model: Ubah model menjadi TensorRT Engine.
+
+4. Deploy Model: Jalankan engine menggunakan runtime API.
+
+#### Konversi dan Deployment
+
+![konversi](img/convertion.png)
+
+##### Opsi Konversi
+
+- Torch-TensorRT: Integrasi langsung di dalam PyTorch.
+
+- ONNX Conversion (Otomatis): Menggunakan tool trtexec untuk mengubah file .onnx menjadi engine.
+
+- Nsight Deep Learning Designer: Tool berbasis GUI untuk visualisasi dan konversi.
+
+- API Network Definition: Membangun jaringan secara manual lapis demi lapis (C++ atau Python).
+
+##### Opsi Deployment
+
+- Standalone Runtime API: Performa tertinggi dengan overhead paling rendah.
+
+- Triton Inference Server: Untuk deployment skala produksi/cloud yang mendukung HTTP/gRPC.
+
+#### Contoh Implementasi: ONNX ke TensorRT
+
+##### Konversi dengan trtexec
+
+Gunakan tool baris perintah ini untuk mengubah model ONNX menjadi engine TensorRT dengan presisi FP16:
+
+```bash
+trtexec --onnx=model.onnx --saveEngine=model_engine.engine --fp16
+```
+
+##### Inferensi dengan Python Runtime
+
+Berikut adalah cara memuat engine dan menjalankan prediksi:
+
+```python
 import tensorrt as trt
 import pycuda.driver as cuda
 import pycuda.autoinit
 import numpy as np
 
-TRT_LOGGER = trt.Logger(trt.Logger.WARNING)
-
-with open("model.engine", "rb") as f:
-    runtime = trt.Runtime(TRT_LOGGER)
+# Load Engine
+logger = trt.Logger(trt.Logger.WARNING)
+with open("model_engine.engine", "rb") as f, trt.Runtime(logger) as runtime:
     engine = runtime.deserialize_cuda_engine(f.read())
 
-context = engine.create_execution_context()
+# Allocate Memory & Run
+with engine.create_execution_context() as context:
+    input_shape = context.get_tensor_shape("input")
+    host_in = np.random.randn(*input_shape).astype(np.float32)
+    device_in = cuda.mem_alloc(host_in.nbytes)
+    
+    # Copy to Device, Execute, and Copy Back
+    cuda.memcpy_htod(device_in, host_in)
+    context.execute_v2(bindings=[int(device_in), int(device_out)])
+```
 
-----------------------------------------------------
-2.5 Parameter Penting TensorRT
-----------------------------------------------------
+#### Referensi API (Runtime)
 
-Builder Flags:
-- FP16
-- INT8
-- STRICT_TYPES
+##### nvinfer1::ICudaEngine
 
-Execution Context:
-- set_binding_shape()
-- execute_v2()
+Class ini merepresentasikan model yang sudah dioptimasi (Engine).
 
-Catatan:
-- Engine TIDAK portable antar GPU
-- Shape dinamis harus diset manual
+- create_execution_context(): Membuat konteks eksekusi untuk menjalankan inferensi.
+- get_tensor_shape(tensor_name): Mengambil dimensi input/output dari model.
+- get_tensor_dtype(tensor_name): Mengambil tipe data tensor.
 
-----------------------------------------------------
-2.6 INT8 Calibration
-----------------------------------------------------
+##### nvinfer1::IExecutionContext
 
-Digunakan untuk edge device dan efisiensi daya.
+Class utama untuk mengatur state eksekusi dan menjalankan inferensi.
 
-trtexec \
-  --onnx=model.onnx \
-  --int8 \
-  --calib=calibration.cache
+- execute_v2(bindings): Menjalankan inferensi secara sinkron pada batch data (deprecated di versi terbaru, gunakan V3).
+- enqueue_v3(stream): Menjalankan inferensi secara asinkron pada CUDA stream tertentu.
+- set_input_shape(name, shape): Menentukan dimensi input jika menggunakan dynamic shapes.
 
-====================================================
-3. OPENVINO
-====================================================
+### OpenVINO
 
-3.1 Fungsi Utama
-OpenVINO adalah inference engine untuk CPU Intel, iGPU, dan VPU
-dengan efisiensi tinggi dan stabilitas production.
+OpenVINO (Open Visual Inference and Neural Network Optimization) adalah toolkit open-source dari Intel untuk mengoptimalkan dan men-deploy model AI dari berbagai framework (PyTorch, TensorFlow, ONNX) ke perangkat keras Intel (CPU, GPU terintegrasi, NPU).
 
-----------------------------------------------------
-3.2 Instalasi
-----------------------------------------------------
+![OpenVINO](img/openvino.png)
 
+#### Instalasi OpenVINO
+
+##### Install OpenVINO Runtime (Python)
+
+```bash
 pip install openvino
+```
 
-----------------------------------------------------
-3.3 Konversi Model
-----------------------------------------------------
+##### Install OpenVINO Development Tools (Untuk Konversi Model)
 
-mo \
-  --input_model model.onnx \
-  --output_dir openvino_model
+```bash
+pip install openvino-dev
+```
 
-Output:
-- model.xml (graph)
-- model.bin (weights)
+#### Alur Kerja OpenVINO
 
-----------------------------------------------------
-3.4 Inference OpenVINO (Python)
-----------------------------------------------------
+- Convert: Mengonversi model dari format asli (PyTorch/TF) menjadi format OpenVINO IR (.xml dan .bin) menggunakan API ov.convert_model.
+- Optimize: Menerapkan teknik kompresi seperti kuantisasi (INT8) menggunakan NNCF (Neural Network Compression Framework).
+- Deploy: Menjalankan inferensi menggunakan OpenVINO Runtime API yang secara otomatis mengoptimalkan beban kerja di hardware Intel.
 
-from openvino.runtime import Core
+#### Implementasi Inferensi (Python)
+
+##### Load Model dan Eksekusi
+
+Berikut adalah cara dasar untuk memuat model dan menjalankan inferensi:
+
+```python
+import openvino as ov
 import numpy as np
 
-ie = Core()
+# 1. Inisialisasi Core
+core = ov.Core()
 
-model = ie.read_model(
-    model="model.xml",
-    weights="model.bin"
-)
+# 2. Baca model (format IR, ONNX, atau PaddlePaddle)
+model = core.read_model("model.xml")
 
-compiled_model = ie.compile_model(
-    model=model,
-    device_name="CPU"
-)
+# 3. Compile model untuk perangkat tertentu (misal: CPU atau GPU)
+compiled_model = core.compile_model(model, "CPU")
 
-input_layer = compiled_model.input(0)
-output_layer = compiled_model.output(0)
+# 4. Jalankan inferensi
+infer_request = compiled_model.create_infer_request()
+input_data = np.random.randn(1, 3, 224, 224)
+results = compiled_model([input_data])[compiled_model.output(0)]
+```
 
-input_data = np.random.rand(1, 3, 224, 224).astype(np.float32)
+##### Konversi Model Langsung dari PyTorch
 
-result = compiled_model([input_data])[output_layer]
+Pada OpenVINO tidak perlu mengekspor ke ONNX terlebih dahulu; OpenVINO bisa langsung membaca objek model PyTorch:
 
-----------------------------------------------------
-3.5 Parameter Penting OpenVINO
-----------------------------------------------------
+```python
+import openvino as ov
+import torch
 
-Compile Config:
-- PERFORMANCE_HINT: LATENCY / THROUGHPUT
-- INFERENCE_NUM_THREADS
-- NUM_STREAMS
+model = MyPyTorchModel() # Model pytorch
+ov_model = ov.convert_model(model)
+ov.save_model(ov_model, "model_ir.xml")
+```
 
-Contoh:
-{
-  "PERFORMANCE_HINT": "LATENCY",
-  "INFERENCE_NUM_THREADS": "8"
-}
+#### Advanced Features
 
-====================================================
-4. PIPELINE DEPLOYMENT YANG DISARANKAN
-====================================================
+##### Automated Device Configuration
 
-Training:
-PyTorch / TensorFlow
+- AUTO (Automatic Device Selection): Secara otomatis memilih hardware terbaik yang tersedia (misal: jika ada iGPU, ia akan memakainya, jika tidak, balik ke CPU).
+- HETERO (Heterogeneous Execution): Membagi beban kerja model ke beberapa hardware sekaligus (misal: sebagian di CPU, sebagian di NPU).
 
-Export:
-model.onnx
+##### Model Optimization (NNCF)
 
-Validasi:
-ONNX Runtime (CPU/GPU)
+- Quantization-Aware Training (QAT): Melatih model agar tetap akurat meski menggunakan presisi INT8.
+- Post-Training Quantization (PTQ): Mengompres model yang sudah dilatih tanpa perlu retraining.
 
-Optimasi:
-- NVIDIA → TensorRT
-- Intel → OpenVINO
+##### Performance Hints
 
-Deployment:
-- Python / C++
-- ROS / ROS2
-- GStreamer / ZeroMQ
+- LATENCY: Cocok untuk aplikasi real-time (seperti drone yang harus mendeteksi penyakit tanaman saat terbang).
 
-====================================================
-5. PERBANDINGAN SINGKAT
-====================================================
+- THROUGHPUT: Cocok jika kamu memproses ribuan foto sekaligus di server setelah drone mendarat.
 
-ONNX Runtime:
-- Mudah
-- Portable
-- Cocok development & validasi
-
-TensorRT:
-- Performa tertinggi
-- NVIDIA only
-- Production final stage
-
-OpenVINO:
-- CPU friendly
-- Hemat daya
-- Edge & server scale
-
-====================================================
-6. CATATAN PRODUKSI
-====================================================
-
-- Selalu bandingkan output numerik pasca konversi
-- INT8 bisa menurunkan akurasi
-- Gunakan FP16 jika latency kritikal
-- Logging dan profiling wajib sebelum deployment
-
-====================================================
-DOKUMENTASI SELESAI
-====================================================
+```python
+# Contoh setting prioritas Latency
+compiled_model = core.compile_model(model, "CPU", {"PERFORMANCE_HINT": "LATENCY"})
+```
 
 ## [Website Penting](#website-penting)
 

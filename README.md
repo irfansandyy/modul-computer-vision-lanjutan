@@ -51,7 +51,7 @@ flowchart LR
 
 Computer vision pada UAV itu real-time dan terbatas sumber daya
 
-#### Tabel Perbadingan Computer Vision Biasa dan UAV Computer Vision
+#### Tabel Perbandingan Computer Vision Biasa dan UAV Computer Vision
 
 | Aspek | CV Biasa | CV UAV |
 |-------|----------|--------|
@@ -77,7 +77,7 @@ Contoh: Model yolo yang memiliki akurasi 95% tetapi sering miss frame lebih buru
 
 - Manual: Kesadaran Operator
 - Assisted: Peringatan dan pemberian informasi
-- Autonomus: Kontrol penuh UAV dan pengambil keputusan
+- Autonomous (Otonom): Kontrol penuh UAV dan pengambil keputusan
 
 Visi tidak menerbangkan UAV, tetapi visi memberikan informasi kepada pengendali UAV atau sistem otonom untuk membuat keputusan.
 
@@ -141,7 +141,7 @@ Belajar budgeting, bukan mengejar angka dan metrik
 - Frame Rate: Lebih tinggi lebih baik untuk tracking dan obstacle avoidance
 - Shutter Type: Global shutter sangat direkomendasikan untuk UAV agresif atau presisi tinggi. Rolling shutter masih dapat digunakan dengan mitigasi yang tepat.
 - Motion Blur: Gunakan exposure time pendek untuk mengurangi blur
-- Exposure Time vs FPS: Jika ingin FPS tinggi, exposure time harus pendek. Tetapi semakin pendek exposure time, semakin gelap gambarnya
+- Exposure Time vs FPS: Untuk mendapatkan FPS tinggi, exposure time biasanya perlu lebih pendek. Tetapi semakin pendek exposure time, semakin gelap gambarnya (perlu kompensasi dari lighting/ISO/gain).
 - FOV vs Detection scale: Semakin lebar FOV, semakin kecil objek di gambar, tetapi cakupan area lebih besar
 
 #### Faktor Lingkungan
@@ -235,8 +235,8 @@ Fokus section ini adalah kamera RGB biasa.
 
 | Tipe | Cara Kerja | Dampak pada UAV |
 |------|------------|-----------------|
-| Global Shutter | Menangkap seluruh pixel secara serentak | Sangat Baik: Objek tetap tajam meski UAV bergerak sangat cepat atau bergetar |
-| Rolling Shutter | Menangkap gambar baris demi baris (atas ke bawah) | Buruk: Muncul efek miring (skew), goyang (wobble), atau efek jello pada video |
+| Global Shutter | Menangkap seluruh pixel secara serentak | Sangat baik untuk gerakan cepat: objek cenderung lebih tajam meski UAV bergerak cepat/bergetar |
+| Rolling Shutter | Menangkap gambar baris demi baris (atas ke bawah) | Kurang ideal untuk manuver cepat: dapat muncul efek miring (skew), wobble, atau efek jello |
 
 ##### Mengapa Data Training Harus Sesuai dengan Tipe Shutter?
 
@@ -283,7 +283,7 @@ flowchart LR
     A --> B --> C --> D --> E --> F
 ```
 
-Tuning ISP bisa mempengaruhi akurasi kepada CV lebih daripada hyperparameter model itu sendiri.
+Tuning ISP dapat berdampak besar pada kualitas input CV, dan pada beberapa kasus dampaknya bisa lebih besar daripada perubahan kecil pada hyperparameter model.
 
 ### Format Umum Gambar
 
@@ -295,7 +295,7 @@ Tuning ISP bisa mempengaruhi akurasi kepada CV lebih daripada hyperparameter mod
 - Grayscale: Satu channel intensitas cahaya, mengurangi kompleksitas komputasi
 - JPEG/PNG: Tidak ideal untuk CV low-level atau geometric vision, tapi sangat umum dan cukup untuk detection berbasis CNN
 
-Penting: Kebanyakan bug pada CV datang dari ketidaksesuaian BGR vs RGB
+Penting: Salah satu sumber bug yang sangat umum pada CV adalah ketidaksesuaian BGR vs RGB.
 
 Berikut adalah ringkasan untuk poin 1.5 hingga 1.7 dalam konteks Computer Vision untuk UAV (UAV):
 
@@ -309,7 +309,7 @@ Sinkronisasi waktu adalah kunci agar UAV tidak "bingung" dengan datanya sendiri.
   - Camera FPS =! Inference FPS: Kamera kirim 60 gambar/detik, tapi CV mungkin hanya sanggup proses 15 gambar/detik.
   - Sync IMU & Image: Data kemiringan UAV (IMU) harus pas dengan gambar. Jika telat 0.1 detik saja, estimasi posisi bisa meleset jauh.
 
-Penting: Data gambar tanpa catatan waktu yang akurat tidak berguna untuk navigasi otonom.
+Penting: Data gambar tanpa catatan waktu yang akurat akan sulit dipakai untuk navigasi otonom (sinkronisasi dengan IMU/estimasi state jadi mudah meleset).
 
 ### Motion Artifacts & Environmental Effects
 
@@ -350,19 +350,19 @@ Penting: Dataset != folder of images. Dataset adalah representasi terukur dari s
 
 ### Sumber Dataset UAV Terbuka
 
-- Roboflow Universe: [universe.roboflow.com](universe.roboflow.com)
-- Kaggle Datasets: [www.kaggle.com/datasets](www.kaggle.com/datasets)
-- Mendeley Data: [data.mendeley.com](data.mendeley.com)
-- Google Dataset Search: [datasetsearch.research.google.com](datasetsearch.research.google.com)
-- Hugging Face: [huggingface.co/datasets](huggingface.co/datasets)
-- VisUAV: [github.com/VisUAV/VisUAV-Dataset](github.com/VisUAV/VisUAV-Dataset)
+- Roboflow Universe: [universe.roboflow.com](https://universe.roboflow.com)
+- Kaggle Datasets: [www.kaggle.com/datasets](https://www.kaggle.com/datasets)
+- Mendeley Data: [data.mendeley.com](https://data.mendeley.com)
+- Google Dataset Search: [datasetsearch.research.google.com](https://datasetsearch.research.google.com)
+- Hugging Face: [huggingface.co/datasets](https://huggingface.co/datasets)
+- VisUAV: [github.com/VisUAV/VisUAV-Dataset](https://github.com/VisUAV/VisUAV-Dataset)
 
 ### Tools untuk Membuat Dataset (Labelling)
 
-- Roboflow Annotate: [roboflow.com/annotate](roboflow.com/annotate)
-- Label Studio: [https://labelstud.io/)](https://labelstud.io/)
-- CVAT: [github.com/openvinotoolkit/cvat](github.com/openvinotoolkit/cvat)
-- LabelMe: [github.com/wkentaro/labelme](github.com/wkentaro/labelme)
+- Roboflow Annotate: [roboflow.com/annotate](https://roboflow.com/annotate)
+- Label Studio: [labelstud.io](https://labelstud.io/)
+- CVAT: [github.com/openvinotoolkit/cvat](https://github.com/openvinotoolkit/cvat)
+- LabelMe: [github.com/wkentaro/labelme](https://github.com/wkentaro/labelme)
 
 ### Struktur Dataset Yolo
 
@@ -472,7 +472,7 @@ flowchart LR
 
 - Fixed Resolution: Semua frame diubah ke ukuran tetap (misal: 640x480). Lebih mudah dioptimalkan, tapi bisa kehilangan detail pada objek kecil.
 
-Penting: Di UAV, kita diharuskan menggunakan fixed resolution untuk kestabilan dan prediktabilitas.
+Penting: Pada UAV biasanya dipilih fixed resolution untuk kestabilan dan prediktabilitas (timing, budgeting, dan integrasi downstream lebih mudah).
 
 #### Typical UAV Choices
 
@@ -512,7 +512,7 @@ Penting: Di UAV, kita diharuskan menggunakan fixed resolution untuk kestabilan d
 ### Batch Size dan Stream Handling
 
 - Batch Size = 1: Pada UAV, kita memproses gambar satu per satu segera setelah ditangkap untuk meminimalkan jeda waktu.
-- Mengapa batching mersuak latency: Batching meningkatkan throughput (jumlah total gambar per detik), tapi merusak latency (waktu respon per gambar).
+- Mengapa batching merusak latency: Batching meningkatkan throughput (jumlah total gambar per detik), tapi dapat memperburuk latency (waktu respon per gambar).
 
 ### Determinism dan Timing Guarantees
 
@@ -615,7 +615,7 @@ Penting: Tingkat inferensi harus sesuai dengan kebutuhan misi.
 
 Input ke model harus bersifat "Immutable" (tidak boleh berubah strukturnya):
 
-- Fixed-shape tensor: Jika model dilatih untuk 640x640, input harus selalu 640x640. Jangan pernah membiarkan dimensi berubah di tengah jalan.
+- Fixed-shape tensor: Untuk sistem real-time (UAV), biasanya lebih aman memakai input fixed-shape (mis. 640x640) supaya latency lebih stabil. Dynamic shape bisa dipakai, tapi perlu pengujian dan budgeting yang lebih ketat.
 - Known layout: Pastikan formatnya sudah pasti.
 - Timestamped: Setiap data yang masuk harus membawa catatan waktu kapan gambar tersebut diambil oleh kamera, bukan kapan ia sampai di CV.
 
@@ -913,7 +913,7 @@ flowchart LR
     A["Deteksi Sudut Objek (YOLO/CornerSubPix)"]
     B["Definisi Model 3D (Ukuran Fisik Objek)"]
     C["Algoritma PnP (cv2.solvePnP)"]
-    D["Output: Rotasi & Transposisi (rvec, tvec)"]
+    D["Output: Rotasi & Translasi (rvec, tvec)"]
     E["Konversi ke Euler Angles (Pitch, Roll, Yaw)"]
     F["Kirim ke Flight Controller"]
     A --> C
@@ -933,6 +933,79 @@ flowchart LR
 ## [OpenCV](#opencv)
 
 Lihat: [Modul OpenCV](https://github.com/magang-bayucaraka-2026/modul-opencv)
+
+### OpenCV untuk pipeline deteksi YOLO (praktis)
+
+OpenCV sering dipakai untuk bagian **preprocessing** dan **postprocessing** (di luar model) karena cepat, stabil, dan mudah diintegrasikan dengan pipeline kamera UAV.
+
+#### Capture frame + timestamp
+
+Timestamp sebaiknya diambil saat frame diterima (bukan setelah inference) agar sinkronisasi dengan IMU lebih masuk akal.
+
+```python
+import time
+import cv2
+
+cap = cv2.VideoCapture(0)
+
+ok, frame_bgr = cap.read()
+ts_ns = time.monotonic_ns()  # contoh timestamp monotonic
+```
+
+#### Letterbox (resize tanpa merusak aspect ratio)
+
+Letterbox menyimpan rasio aspek dan menambah padding. Nilai `r` dan `(dw, dh)` perlu disimpan untuk mengembalikan koordinat box ke ukuran frame asli.
+
+```python
+import cv2
+import numpy as np
+
+def letterbox(im, new_shape=(640, 640), color=(114, 114, 114)):
+  h0, w0 = im.shape[:2]
+  h, w = new_shape
+
+  r = min(h / h0, w / w0)
+  new_unpad = (int(round(w0 * r)), int(round(h0 * r)))
+  dw, dh = (w - new_unpad[0]) / 2, (h - new_unpad[1]) / 2
+
+  if (w0, h0) != new_unpad:
+    im = cv2.resize(im, new_unpad, interpolation=cv2.INTER_LINEAR)
+
+  top, bottom = int(round(dh - 0.1)), int(round(dh + 0.1))
+  left, right = int(round(dw - 0.1)), int(round(dw + 0.1))
+  im = cv2.copyMakeBorder(im, top, bottom, left, right, cv2.BORDER_CONSTANT, value=color)
+  return im, r, (dw, dh)
+```
+
+#### BGR -> RGB, normalisasi, dan layout tensor
+
+Mayoritas model deteksi dilatih di RGB. Pastikan urutan channel dan normalisasi sesuai saat training/export.
+
+```python
+img_lb, r, (dw, dh) = letterbox(frame_bgr, (640, 640))
+img_rgb = cv2.cvtColor(img_lb, cv2.COLOR_BGR2RGB)
+
+x = img_rgb.astype(np.float32) / 255.0
+x = np.transpose(x, (2, 0, 1))  # HWC -> CHW
+x = np.expand_dims(x, 0)        # CHW -> NCHW
+```
+
+#### De-letterbox (kembalikan koordinat box ke frame asli)
+
+Jika hasil postprocessing menghasilkan box dalam koordinat image letterbox (misal format `xyxy`), konversi balik ke ukuran asli:
+
+```python
+def scale_boxes_xyxy(boxes_xyxy, r, dw, dh, w0, h0):
+  boxes = boxes_xyxy.copy()
+  boxes[:, [0, 2]] -= dw
+  boxes[:, [1, 3]] -= dh
+  boxes /= r
+  boxes[:, [0, 2]] = boxes[:, [0, 2]].clip(0, w0 - 1)
+  boxes[:, [1, 3]] = boxes[:, [1, 3]].clip(0, h0 - 1)
+  return boxes
+```
+
+Catatan: detail format output tergantung model/engine (ada yang output `xywh`, ada yang `xyxy`, ada yang masih normalisasi). Yang penting: simpan parameter resize/padding dan konsisten di postprocessing.
 
 ### Kalibrasi Kamera
 
@@ -1173,33 +1246,58 @@ if success:
 
 ## [Roboflow](#roboflow)
 
-Roboflow adalah platform manajemen dataset model computer vision yang menyediakan alat untuk membuat dataset, melabeli data, dan export dataset ke YOLO maupun COCO.
+Roboflow adalah platform manajemen dataset model computer vision yang menyediakan alat untuk membuat dataset, melabeli data, dan export dataset ke YOLO.
 
 Lihat link berikut ini untuk mulai melabel dataset dengan Roboflow: [roboflow.com/annotate](https://roboflow.com/annotate)
 Link dokumentasi Roboflow: [docs.roboflow.com](https://docs.roboflow.com/)
-Link Quickstart Roboflow: [blog.roboflow.com/getting-started-with-roboflow)](https://blog.roboflow.com/getting-started-with-roboflow/)
+Link Quickstart Roboflow: [blog.roboflow.com/getting-started-with-roboflow](https://blog.roboflow.com/getting-started-with-roboflow/)
+
+### Alur kerja Roboflow (praktis)
+
+Tujuan utama Roboflow di pipeline ini adalah memastikan dataset rapi, konsisten, dan mudah diekspor ke format training (misalnya YOLO).
+
+#### Buat project dan definisikan kelas
+
+- Tentukan *class list* dari awal dan jangan berubah-ubah nama kelas di tengah jalan.
+- Pilih tipe anotasi sesuai kebutuhan: **Detection** (bounding box) atau **Segmentation** (mask).
+
+#### Upload data (raw flight footage lebih baik)
+
+- Usahakan data merepresentasikan kondisi UAV: variasi ketinggian, angle kamera, waktu (pagi/siang/sore), cuaca, dan blur.
+- Hindari hanya mengambil data “gambar bagus dari internet” jika deployment-nya pakai rolling shutter / banyak motion blur.
+
+#### Labeling + quality control
+
+Checklist cepat yang biasanya paling sering bikin training gagal:
+
+- **Bounding box konsisten** (jangan hari ini super ketat, besok longgar).
+- **Objek terlalu kecil**: tentukan aturan minimum (misal area/pixel threshold) supaya model tidak belajar dari noise.
+- **Occlusion**: sepakati aturan tim (tetap label sebagian vs skip) agar konsisten.
+
+#### Generate dataset version (split + augmentasi)
+
+- Pastikan split **train/val/test** benar. Default yang aman: train dominan, test kecil tapi representatif.
+- Augmentasi pakai seperlunya dan masuk akal untuk UAV: motion blur ringan, brightness/contrast, perspective/rotate kecil.
+
+#### Export ke format training
+
+- Untuk YOLO: export ke **YOLOv5/YOLOv8** (format folder `images/` + `labels/` dan file `.yaml`).
+- Untuk ekosistem lain: export ke **COCO** (umum untuk training/benchmarking).
+
+Catatan penting: export format bukan cuma “beda folder”. Pastikan juga **konvensi koordinat** dan **nama kelas** sesuai tool training yang dipakai.
 
 ## [Yolo](#yolo)
 
-Ultralytics YOLO adalah framework *state-of-the-art* (SOTA) yang dirancang untuk kecepatan dan akurasi tinggi dalam tugas *computer vision*. Framework ini menyediakan antarmuka Python yang intuitif dan Command-Line Interface (CLI) yang kuat.
+Ultralytics YOLO adalah framework populer untuk deteksi/segmentasi/pose yang menyeimbangkan kecepatan dan akurasi. Framework ini menyediakan antarmuka Python dan Command-Line Interface (CLI).
 
 ### Instalasi YOLO
 
-Metode tercepat adalah menggunakan `pip`. Pastikan sistem sudah terinstall Python dan PyTorch.
+Metode tercepat adalah menggunakan `pip`. Pastikan sistem sudah terinstal Python. Untuk akselerasi GPU, instal PyTorch yang sesuai dengan versi CUDA/driver yang tersedia.
 
-#### Instalasi Standar (Rekomendasi)
+#### Instalasi Standar
 
 ```bash
 pip install -U ultralytics
-
-```
-
-#### Instalasi Headless (Untuk Server/Docker)
-
-Jika menjalankan YOLO di server tanpa monitor (misalnya cloud VM), gunakan versi *headless* untuk menghindari masalah pada library GUI:
-
-```bash
-pip install ultralytics-opencv-headless
 
 ```
 
@@ -1211,7 +1309,9 @@ Antarmuka Python YOLO memungkinkan integrasi yang mulus ke dalam proyek aplikasi
 from ultralytics import YOLO
 
 # 1. Load Model
-model = YOLO("yolo11n.pt")  # Memuat model pretrained resmi
+# Contoh: gunakan model pretrained yang tersedia di Ultralytics.
+# (Nama file bisa berbeda tergantung versi Ultralytics yang kamu pakai.)
+model = YOLO("yolov8n.pt")
 
 # 2. Training (Opsional)
 # Melatih model pada dataset kustom
@@ -1230,6 +1330,67 @@ results = model("https://ultralytics.com/images/bus.jpg")
 model.export(format="onnx")
 
 ```
+
+### Alur kerja via CLI (ringkas)
+
+CLI berguna untuk workflow cepat dan reproducible:
+
+```bash
+# Training
+yolo detect train model=yolov8n.pt data=path/to/dataset.yaml epochs=100 imgsz=640
+
+# Validasi
+yolo detect val model=runs/detect/train/weights/best.pt data=path/to/dataset.yaml
+
+# Predict
+yolo detect predict model=runs/detect/train/weights/best.pt source=path/to/images
+
+# Export (contoh ONNX)
+yolo export model=runs/detect/train/weights/best.pt format=onnx
+```
+
+Catatan UAV: fokuskan pada kestabilan runtime (FPS stabil, spike rendah) dan *freshness* deteksi, bukan hanya mAP.
+
+### Pipeline YOLO
+
+#### Dataset YAML (minimal)
+
+Ultralytics menggunakan file `.yaml` untuk mendeskripsikan dataset.
+
+```yaml
+# dataset.yaml
+path: /abs/path/to/dataset
+train: images/train
+val: images/val
+
+names:
+  0: person
+  1: car
+```
+
+Checklist dataset:
+
+- Struktur folder konsisten: `images/{train,val,test}` dan `labels/{train,val,test}`.
+- Label YOLO ter-normalisasi (0..1) dan sesuai `names`.
+- Pastikan variasi data sesuai kondisi UAV (altitude/angle/lighting/motion blur).
+
+#### Preprocessing & postprocessing harus “match”
+
+Untuk deployment, *yang paling sering bikin hasil meleset bukan modelnya, tapi mismatch preprocessing/postprocessing*.
+
+- Preprocess umum YOLO export: **letterbox** -> **BGR to RGB** -> **/255** -> **NCHW float32**.
+- Postprocess umum: confidence threshold -> per-class filtering (opsional) -> NMS -> koreksi letterbox -> clamp ke ukuran frame asli.
+
+#### Export checklist (agar ONNX/engine tidak bikin kejutan)
+
+- Tetapkan input size (mis. `imgsz=640`) dan usahakan fixed-shape untuk latency stabil.
+- Validasi hasil export minimal dengan 1–2 gambar yang sama: PyTorch (`.pt`) vs ONNX (cek apakah box kira-kira sama).
+- Simpan metadata yang dibutuhkan deployment: `imgsz`, jenis letterbox yang dipakai, class list, threshold.
+
+#### Benchmarking cepat sebelum terbang
+
+- Ukur latency end-to-end (capture→preprocess→inference→postprocess), bukan hanya waktu inference.
+- Lakukan warmup beberapa kali; batch size 1 biasanya paling relevan untuk UAV.
 
 ### Mode Operasi YOLO
 
@@ -1282,6 +1443,8 @@ model.export(format="openvino")  # Export ke OpenVINO
 
 ```
 
+Catatan: export `engine` (TensorRT) biasanya butuh environment NVIDIA yang sesuai (driver/CUDA/TensorRT). Jika gagal, mulai dari export `onnx` dulu lalu optimasi bertahap.
+
 ### Konfigurasi Global (Settings)
 
 Ultralytics memiliki `SettingsManager` untuk mengatur direktori penyimpanan dataset dan hasil eksperimen secara permanen.
@@ -1330,6 +1493,14 @@ for r in results:
 
 Inference adalah proses menjalankan model machine learning yang sudah dilatih untuk membuat prediksi pada data baru. Dalam konteks computer vision, inference sering digunakan untuk mendeteksi objek, mengklasifikasikan gambar, atau melakukan segmentasi gambar secara real-time. Pada section ini kita belajar bagaimana menjalankan model yang dihasilkan dari yolo menggunakan beberapa inference engine populer seperti ONNX Runtime, NVIDIA TensorRT, dan OpenVINO.
 
+### Ringkasan pemilihan inference engine
+
+| Engine | Cocok untuk | Kelebihan | Catatan / Risiko |
+| --- | --- | --- | --- |
+| ONNX Runtime | Validasi & deployment umum (CPU/GPU) | Setup relatif mudah, banyak provider | Hasil sangat bergantung preprocessing/postprocess; GPU butuh kompatibilitas driver/CUDA |
+| TensorRT | NVIDIA GPU/Jetson (latency rendah) | Performa tinggi, optimasi FP16/INT8 | Setup paling sensitif versi CUDA/TensorRT; debugging lebih sulit |
+| OpenVINO | CPU/iGPU/NPU Intel | Optimasi bagus di hardware Intel, opsi AUTO/HETERO | Konversi/kompatibilitas operator bisa jadi pembatas |
+
 ### ONNX Runtime
 
 ONNX Runtime adalah inference engine general-purpose untuk menjalankan model format ONNX di berbagai backend (CPU, CUDA, TensorRT, OpenVINO).
@@ -1358,12 +1529,31 @@ pip install onnxruntime-gpu --extra-index-url https://aiinfra.pkgs.visualstudio.
 
 #### ONNX Inference
 
-##### Load Model dan Inference
+##### Contoh inferensi minimal (Python)
+
+Contoh ini menunjukkan cara menjalankan model ONNX, mengambil nama input, dan menjalankan `session.run()`.
 
 ```python
-session = onnxruntime.InferenceSession('model.onnx')
+import numpy as np
+import onnxruntime as ort
 
-outputs = session.run([output names], inputs)
+# 1) Buat session (default CPU)
+session = ort.InferenceSession("model.onnx", providers=["CPUExecutionProvider"])
+
+# 2) Ambil metadata input
+input0 = session.get_inputs()[0]
+input_name = input0.name
+print("Input name:", input_name)
+print("Input shape:", input0.shape)
+print("Input type:", input0.type)
+
+# 3) Siapkan tensor input (contoh random). Pastikan dtype/layout sesuai modelmu.
+# Banyak model deteksi export dari YOLO memakai layout NCHW dan float32.
+x = np.random.randn(1, 3, 640, 640).astype(np.float32)
+
+# 4) Run inferensi. `None` = ambil semua output.
+outputs = session.run(None, {input_name: x})
+print("Num outputs:", len(outputs))
 ```
 
 ##### Inference Dengan Pilihan GPU atau CPU
@@ -1371,270 +1561,73 @@ outputs = session.run([output names], inputs)
 List Inference Provider: [onnxruntime.ai/docs/execution-providers](https://onnxruntime.ai/docs/execution-providers)
 
 ```python
-session = onnxruntime.InferenceSession(
-        model, providers=['CUDAExecutionProvider', 'CPUExecutionProvider']
+import onnxruntime as ort
+
+print("Available providers:", ort.get_available_providers())
+
+session = ort.InferenceSession(
+  "model.onnx",
+  providers=["CUDAExecutionProvider", "CPUExecutionProvider"],
 )
 ```
 
 ##### Menambahkan Session Options
 
 ```python
-options = onnxruntime.SessionOptions()
-options.enable_profiling=True
-session = onnxruntime.InferenceSession(
-        'model.onnx',
-        sess_options=options,
-        providers=['CUDAExecutionProvider', 'CPUExecutionProvider'])
+import onnxruntime as ort
+
+options = ort.SessionOptions()
+options.enable_profiling = True
+
+session = ort.InferenceSession(
+  "model.onnx",
+  sess_options=options,
+  providers=["CUDAExecutionProvider", "CPUExecutionProvider"],
+)
 ```
 
-#### InferenceSession()
+#### Checklist umum agar hasil tidak “aneh”
+
+- Pastikan **preprocessing** sama dengan saat training/export (resize/letterbox, urutan channel, normalisasi, mean/std).
+- Cocokkan **layout** input (umumnya NCHW untuk ONNX dari YOLO) dan **dtype** (umumnya `float32`).
+- Selalu cek **nama input** lewat `session.get_inputs()` (jangan hardcode kalau tidak yakin).
+- Output model deteksi biasanya masih mentah: perlu **confidence threshold + NMS + koreksi letterbox** di postprocessing.
+
+#### Pipeline inference
+
+Urutan yang aman untuk deployment:
+
+1. Jalankan `.pt` (Ultralytics) untuk dapatkan baseline hasil.
+2. Export ke ONNX fixed-shape (mis. 640x640) dan jalankan di ONNX Runtime CPU.
+3. Pastikan hasil “masuk akal” (box/label) sebelum optimasi performa.
+4. Baru pindah ke GPU provider (CUDAExecutionProvider) atau engine spesifik (TensorRT/OpenVINO).
+5. Optimasi: FP16/INT8 (jika hardware mendukung) + profiling latency end-to-end.
+
+##### Profiling latency yang realistis
+
+Contoh sederhana
 
 ```python
-class onnxruntime.InferenceSession(path_or_bytes: str | bytes | os.PathLike, sess_options: onnxruntime.SessionOptions | None = None, providers: Sequence[str | tuple[str, dict[Any, Any]]] | None = None, provider_options: Sequence[dict[Any, Any]] | None = None, **kwargs)
+import time
+import numpy as np
+import onnxruntime as ort
+
+session = ort.InferenceSession("model.onnx", providers=["CPUExecutionProvider"])
+input_name = session.get_inputs()[0].name
+x = np.random.randn(1, 3, 640, 640).astype(np.float32)
+
+# warmup
+for _ in range(10):
+  session.run(None, {input_name: x})
+
+t0 = time.perf_counter()
+iters = 50
+for _ in range(iters):
+  session.run(None, {input_name: x})
+t1 = time.perf_counter()
+
+print("avg ms:", (t1 - t0) * 1000 / iters)
 ```
-
-Parameters:
-
-- path_or_bytes – Filename or serialized ONNX or ORT format model in a byte string.
-- sess_options – Session options.
-- providers – Optional sequence of providers in order of decreasing precedence. Values can either be provider names or tuples of (provider name, options dict). If not provided, then all available providers are used with the default precedence.
-- provider_options – Optional sequence of options dicts corresponding to the providers listed in ‘providers’.
-
-##### disable_fallback()
-
-Disable session.run() fallback mechanism.
-
-##### enable_fallback()
-
-Enable session.Run() fallback mechanism. If session.Run() fails due to an internal Execution Provider failure, reset the Execution Providers enabled for this session. If GPU is enabled, fall back to CUDAExecutionProvider. otherwise fall back to CPUExecutionProvider.
-
-##### end_profiling()
-
-End profiling and return results in a file. The results are stored in a filename if the option onnxruntime.SessionOptions.enable_profiling().
-
-##### get_inputs()
-
-Return the inputs metadata as a list of onnxruntime.NodeArg.
-
-##### get_modelmeta()
-
-Return the metadata. See onnxruntime.ModelMetadata.
-
-##### get_outputs()
-
-Return the outputs metadata as a list of onnxruntime.NodeArg.
-
-##### get_overridable_initializers()
-
-Return the inputs (including initializers) metadata as a list of onnxruntime.NodeArg.
-
-##### get_profiling_start_time_ns()
-
-Return the nanoseconds of profiling’s start time Comparable to time.monotonic_ns() after Python 3.3 On some platforms, this timer may not be as precise as nanoseconds For instance, on Windows and MacOS, the precision will be ~100ns
-
-##### get_provider_options()
-
-Return registered execution providers’ configurations.
-
-##### get_providers()
-
-Return list of registered execution providers.
-
-##### get_session_options()
-
-Return the session options. See onnxruntime.SessionOptions.
-
-##### io_binding()
-
-Return an onnxruntime.IOBinding object`.
-
-##### run(output_names, input_feed, run_options=None)
-
-Compute the predictions.
-
-Parameters:
-
-- output_names – name of the outputs
-- input_feed – dictionary { input_name: input_value }
-- run_options – See onnxruntime.RunOptions.
-
-Returns:
-list of results, every result is either a numpy array, a sparse tensor, a list or a dictionary.
-
-##### run_async(output_names, input_feed, callback, user_data, run_options=None)
-
-Compute the predictions asynchronously in a separate cxx thread from ort intra-op threadpool.
-
-Parameters:
-
-- output_names – name of the outputs
-- input_feed – dictionary { input_name: input_value }
-- callback – python function that accept array of results, and a status string on error. The callback will be invoked by a cxx thread from ort intra-op threadpool.
-- run_options – See onnxruntime.RunOptions.
-
-##### run_with_iobinding(iobinding, run_options=None)
-
-Compute the predictions.
-
-Parameters:
-
-- iobinding – the iobinding object that has graph inputs/outputs bind.
-- run_options – See onnxruntime.RunOptions.
-
-##### run_with_ort_values(output_names, input_dict_ort_values, run_options=None)
-
-Compute the predictions.
-
-Parameters:
-
-- output_names – name of the outputs
-- input_dict_ort_values – dictionary { input_name: input_ort_value } See OrtValue class how to create OrtValue from numpy array or SparseTensor
-- run_options – See onnxruntime.RunOptions.
-
-Returns:
-an array of OrtValue
-
-##### run_with_ortvaluevector(run_options, feed_names, feeds, fetch_names, fetches, fetch_devices)
-
-Compute the predictions similar to other run_*() methods but with minimal C++/Python conversion overhead.
-
-Parameters:
-
-- run_options – See onnxruntime.RunOptions.
-- feed_names – list of input names.
-- feeds – list of input OrtValue.
-- fetch_names – list of output names.
-- fetches – list of output OrtValue.
-- fetch_devices – list of output devices.
-
-##### set_providers(providers=None, provider_options=None)
-
-Register the input list of execution providers. The underlying session is re-created.
-
-Parameters:
-
-- providers – Optional sequence of providers in order of decreasing precedence. Values can either be provider names or tuples of (provider name, options dict). If not provided, then all available providers are used with the default precedence.
-- provider_options – Optional sequence of options dicts corresponding to the providers listed in ‘providers’.
-
-#### RunOptions()
-
-```python
-class onnxruntime.RunOptions(self: onnxruntime.capi.onnxruntime_pybind11_state.RunOptions)
-```
-
-Configuration information for a single Run.
-
-##### add_run_config_entry(self: onnxruntime.capi.onnxruntime_pybind11_state.RunOptions, arg0: str, arg1: str) → None
-
-Set a single run configuration entry as a pair of strings.
-
-##### get_run_config_entry(self: onnxruntime.capi.onnxruntime_pybind11_state.RunOptions, arg0: str) → str
-
-Get a single run configuration value using the given configuration key.
-
-##### property log_verbosity_level
-
-VLOG level if DEBUG build and run_log_severity_level is 0. Applies to a particular Run() invocation. Default is 0.
-
-##### property logid
-
-To identify logs generated by a particular Run() invocation.
-
-##### property only_execute_path_to_fetches
-
-Only execute the nodes needed by fetch list
-
-##### property terminate
-
-Set to True to terminate any currently executing calls that are using this RunOptions instance. The individual calls will exit gracefully and return an error status.
-
-##### property training_mode
-
-Choose to run in training or inferencing mode
-
-#### SessionOptions()
-
-```python
-class onnxruntime.SessionOptions(self: onnxruntime.capi.onnxruntime_pybind11_state.SessionOptions)
-```
-
-Configuration information for a session.
-
-##### add_external_initializers(self: onnxruntime.capi.onnxruntime_pybind11_state.SessionOptions, arg0: list, arg1: list) → None
-
-##### add_free_dimension_override_by_denotation(self: onnxruntime.capi.onnxruntime_pybind11_state.SessionOptions, arg0: str, arg1: int) → None
-
-Specify the dimension size for each denotation associated with an input’s free dimension.
-
-##### add_free_dimension_override_by_name(self: onnxruntime.capi.onnxruntime_pybind11_state.SessionOptions, arg0: str, arg1: int) → None
-
-Specify values of named dimensions within model inputs.
-
-##### add_initializer(self: onnxruntime.capi.onnxruntime_pybind11_state.SessionOptions, arg0: str, arg1: object) → None
-
-##### add_session_config_entry(self: onnxruntime.capi.onnxruntime_pybind11_state.SessionOptions, arg0: str, arg1: str) → None
-
-Set a single session configuration entry as a pair of strings.
-
-##### property enable_cpu_mem_arena
-
-Enables the memory arena on CPU. Arena may pre-allocate memory for future usage. Set this option to false if you don’t want it. Default is True.
-
-##### property enable_mem_pattern
-
-Enable the memory pattern optimization. Default is true.
-
-##### property enable_mem_reuse
-
-Enable the memory reuse optimization. Default is true.
-
-##### property enable_profiling
-
-Enable profiling for this session. Default is false.
-
-##### property execution_mode
-
-Sets the execution mode. Default is sequential.
-
-##### property execution_order
-
-Sets the execution order. Default is basic topological order.
-
-##### get_session_config_entry(self: onnxruntime.capi.onnxruntime_pybind11_state.SessionOptions, arg0: str) → str
-
-Get a single session configuration value using the given configuration key.
-
-##### property graph_optimization_level
-
-Graph optimization level for this session.
-
-##### property inter_op_num_threads
-
-Sets the number of threads used to parallelize the execution of the graph (across nodes). Default is 0 to let onnxruntime choose.
-
-##### property intra_op_num_threads
-
-Sets the number of threads used to parallelize the execution within nodes. Default is 0 to let onnxruntime choose.
-
-##### property log_severity_level
-
-Log severity level. Applies to session load, initialization, etc. 0:Verbose, 1:Info, 2:Warning. 3:Error, 4:Fatal. Default is 2.
-
-##### property optimized_model_filepath
-
-File path to serialize optimized model to. Optimized model is not serialized unless optimized_model_filepath is set. Serialized model format will default to ONNX unless: - add_session_config_entry is used to set ‘session.save_model_format’ to ‘ORT’, or - there is no ‘session.save_model_format’ config entry and optimized_model_filepath ends in ‘.ort’ (case insensitive)
-
-##### property profile_file_prefix
-
-The prefix of the profile file. The current time will be appended to the file name.
-
-##### register_custom_ops_library(self: onnxruntime.capi.onnxruntime_pybind11_state.SessionOptions, arg0: str) → None
-
-Specify the path to the shared library containing the custom op kernels required to run a model.
-
-##### property use_deterministic_compute
-
-Whether to use deterministic compute. Default is false.
 
 ### NVIDIA TensorRT
 
@@ -1647,6 +1640,8 @@ NVIDIA TensorRT adalah SDK untuk optimasi model deep learning guna menghasilkan 
 Terdapat beberapa metode utama untuk menginstal TensorRT tergantung pada kebutuhan lingkungan pengembanganmu.
 
 ##### Menggunakan Pip (Python Wheel)
+
+Catatan: instalasi via `pip` tidak selalu tersedia/berhasil untuk semua kombinasi OS, versi Python, driver GPU, dan versi CUDA. Untuk workflow yang paling konsisten, biasanya gunakan **NGC container** atau install dari repo NVIDIA.
 
 ```bash
 pip install tensorrt
@@ -1672,11 +1667,8 @@ docker run --gpus all -it --rm nvcr.io/nvidia/tensorrt:24.01-py3
 Untuk men-deploy model, kamu perlu mengikuti lima langkah dasar berikut:
 
 1. Export Model: Ubah model dari framework asli (PyTorch/TF) ke format perantara (seperti ONNX).
-
 2. Select Precision: Pilih presisi numerik (FP32, FP16, INT8).
-
 3. Convert Model: Ubah model menjadi TensorRT Engine.
-
 4. Deploy Model: Jalankan engine menggunakan runtime API.
 
 #### Konversi dan Deployment
@@ -1686,17 +1678,13 @@ Untuk men-deploy model, kamu perlu mengikuti lima langkah dasar berikut:
 ##### Opsi Konversi
 
 - Torch-TensorRT: Integrasi langsung di dalam PyTorch.
-
 - ONNX Conversion (Otomatis): Menggunakan tool trtexec untuk mengubah file .onnx menjadi engine.
-
 - Nsight Deep Learning Designer: Tool berbasis GUI untuk visualisasi dan konversi.
-
 - API Network Definition: Membangun jaringan secara manual lapis demi lapis (C++ atau Python).
 
 ##### Opsi Deployment
 
 - Standalone Runtime API: Performa tertinggi dengan overhead paling rendah.
-
 - Triton Inference Server: Untuk deployment skala produksi/cloud yang mendukung HTTP/gRPC.
 
 #### Contoh Implementasi: ONNX ke TensorRT
@@ -1711,29 +1699,16 @@ trtexec --onnx=model.onnx --saveEngine=model_engine.engine --fp16
 
 ##### Inferensi dengan Python Runtime
 
-Berikut adalah cara memuat engine dan menjalankan prediksi:
+Implementasi Python TensorRT lengkap biasanya melibatkan:
 
-```python
-import tensorrt as trt
-import pycuda.driver as cuda
-import pycuda.autoinit
-import numpy as np
+- Membaca engine lalu membuat execution context
+- Menyiapkan bindings untuk *semua* input & output
+- Mengelola CUDA stream + memcpy HtoD/DtoH
 
-# Load Engine
-logger = trt.Logger(trt.Logger.WARNING)
-with open("model_engine.engine", "rb") as f, trt.Runtime(logger) as runtime:
-    engine = runtime.deserialize_cuda_engine(f.read())
+Karena contoh lengkapnya cukup panjang dan bergantung versi TensorRT (API bisa berubah), untuk tahap awal biasanya lebih aman:
 
-# Allocate Memory & Run
-with engine.create_execution_context() as context:
-    input_shape = context.get_tensor_shape("input")
-    host_in = np.random.randn(*input_shape).astype(np.float32)
-    device_in = cuda.mem_alloc(host_in.nbytes)
-    
-    # Copy to Device, Execute, and Copy Back
-    cuda.memcpy_htod(device_in, host_in)
-    context.execute_v2(bindings=[int(device_in), int(device_out)])
-```
+- Gunakan `trtexec` untuk konversi + benchmark.
+- Untuk sistem produksi, gunakan **Triton Inference Server** (HTTP/gRPC) atau contoh resmi TensorRT.
 
 #### Referensi API (Runtime)
 
@@ -1806,7 +1781,7 @@ results = compiled_model([input_data])[compiled_model.output(0)]
 
 ##### Konversi Model Langsung dari PyTorch
 
-Pada OpenVINO tidak perlu mengekspor ke ONNX terlebih dahulu; OpenVINO bisa langsung membaca objek model PyTorch:
+Pada beberapa kasus, OpenVINO bisa mengonversi dari model PyTorch tanpa harus mengekspor ke ONNX terlebih dahulu (kompatibilitas tergantung operator/model):
 
 ```python
 import openvino as ov
@@ -1844,19 +1819,19 @@ compiled_model = core.compile_model(model, "CPU", {"PERFORMANCE_HINT": "LATENCY"
 
 ### Website Sumber Dataset UAV Terbuka
 
-- Roboflow Universe: [universe.roboflow.com](universe.roboflow.com)
-- Kaggle Datasets: [www.kaggle.com/datasets](www.kaggle.com/datasets)
-- Mendeley Data: [data.mendeley.com](data.mendeley.com)
-- Google Dataset Search: [datasetsearch.research.google.com](datasetsearch.research.google.com)
-- Hugging Face: [huggingface.co/datasets](huggingface.co/datasets)
-- VisUAV: [github.com/VisUAV/VisUAV-Dataset](github.com/VisUAV/VisUAV-Dataset)
+- Roboflow Universe: [universe.roboflow.com](https://universe.roboflow.com)
+- Kaggle Datasets: [www.kaggle.com/datasets](https://www.kaggle.com/datasets)
+- Mendeley Data: [data.mendeley.com](https://data.mendeley.com)
+- Google Dataset Search: [datasetsearch.research.google.com](https://datasetsearch.research.google.com)
+- Hugging Face: [huggingface.co/datasets](https://huggingface.co/datasets)
+- VisUAV: [github.com/VisUAV/VisUAV-Dataset](https://github.com/VisUAV/VisUAV-Dataset)
 
 ### Website untuk Membuat Dataset (Labelling)
 
-- Roboflow Annotate: [roboflow.com/annotate](roboflow.com/annotate)
-- Label Studio: [https://labelstud.io/)](https://labelstud.io/)
-- CVAT: [github.com/openvinotoolkit/cvat](github.com/openvinotoolkit/cvat)
-- LabelMe: [github.com/wkentaro/labelme](github.com/wkentaro/labelme)
+- Roboflow Annotate: [roboflow.com/annotate](https://roboflow.com/annotate)
+- Label Studio: [labelstud.io](https://labelstud.io/)
+- CVAT: [github.com/openvinotoolkit/cvat](https://github.com/openvinotoolkit/cvat)
+- LabelMe: [github.com/wkentaro/labelme](https://github.com/wkentaro/labelme)
 
 ### Website untuk visualisasi model (file ONNX)
 
@@ -1864,7 +1839,7 @@ compiled_model = core.compile_model(model, "CPU", {"PERFORMANCE_HINT": "LATENCY"
 
 ## [Belajar Lebih Lanjut](#belajar-lebih-lanjut)
 
-- Python Documentation: [docs.python.org](https://docs.python.org/3.14/)
+- Python Documentation: [docs.python.org](https://docs.python.org/3/)
 - Roboflow Documentation: [docs.roboflow.com](https://docs.roboflow.com/)
 - OpenCV Documentation: [docs.opencv.org](https://docs.opencv.org/4.x/)
 - YOLO Documentation: [docs.ultralytics.com](https://docs.ultralytics.com/)
